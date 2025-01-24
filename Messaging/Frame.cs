@@ -230,6 +230,16 @@ namespace Chetch.Messaging
             return complete;
         }
 
+        public bool Add(byte[] bytes)
+        {
+            bool complete = false;
+            foreach(byte b in bytes)
+            {
+                complete = Add(b);
+            }
+            return complete;
+        }
+
         public void Reset()
         {
             Complete = false;
