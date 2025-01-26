@@ -220,7 +220,7 @@ namespace Chetch.Messaging
             return Complete;
         }
 
-        public bool Add(List<byte> bytes)
+        /*public bool Add(List<byte> bytes)
         {
             bool complete = false;
             foreach(byte b in bytes)
@@ -238,7 +238,7 @@ namespace Chetch.Messaging
                 complete = Add(b);
             }
             return complete;
-        }
+        }*/
 
         public void Reset()
         {
@@ -276,7 +276,7 @@ namespace Chetch.Messaging
                         csum = CheckSum.SimpleAddition(_bytes.GetRange(0, Dimensions.ChecksumIndex).ToArray());
                         if (_bytes[Dimensions.ChecksumIndex] != csum)
                         {
-                            String msg = String.Format("Supplied checksum {0} != {1} calculated checksum");
+                            String msg = String.Format("Supplied checksum {0} != {1} calculated checksum", _bytes[Dimensions.ChecksumIndex], csum);
                             throw new FrameException(Frame.FrameError.CHECKSUM_FAILED, msg);
                         }
                         break;
