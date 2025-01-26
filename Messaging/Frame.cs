@@ -6,6 +6,7 @@ namespace Chetch.Messaging
 {
     public class Frame
     {
+        #region Clsses and Enums
         public enum FrameSchema
         {
             SMALL_NO_CHECKSUM = 1,      //FrameSchema = 1 byte, Encoding = 1 byte, Payload size = 1 byte, Payload = max 255 bytes
@@ -103,8 +104,9 @@ namespace Chetch.Messaging
                 }
             }
         }
+        #endregion
 
-
+        #region Properties
         public FrameSchema Schema { 
             get 
             {
@@ -160,10 +162,18 @@ namespace Chetch.Messaging
             }
         }
 
+        public bool Complete { get; internal set; } = false;
+        #endregion
+
+        #region Events
+        public EventHandler<byte>? FrameComplete;
+        #endregion
+
+        #region Fields
         private List<byte> _bytes = new List<byte>();
         private int _addPosition = 0;
-
-        public bool Complete { get; internal set; } = false;
+        #endregion
+       
         
 
         public Frame(FrameSchema schema)
@@ -192,7 +202,7 @@ namespace Chetch.Messaging
             }
         }
 
-        public bool Add(byte b)
+        private bool addByte(byte b)
         {
             if (Complete)
             {
@@ -220,7 +230,7 @@ namespace Chetch.Messaging
             return Complete;
         }
 
-        public bool Add(List<byte> bytes)
+        /*public bool Add(List<byte> bytes)
         {
             bool complete = false;
             foreach(byte b in bytes)
@@ -228,16 +238,14 @@ namespace Chetch.Messaging
                 complete = Add(b);
             }
             return complete;
-        }
+        }*/
 
-        public bool Add(byte[] bytes)
+        public void Add(byte b)
         {
-            bool complete = false;
-            foreach(byte b in bytes)
-            {
-                complete = Add(b);
+            if(addByte(b)){
+                Validate();
+                FrameComplete?.Invoke(this, b);
             }
-            return complete;
         }
 
         public void Reset()
@@ -276,7 +284,7 @@ namespace Chetch.Messaging
                         csum = CheckSum.SimpleAddition(_bytes.GetRange(0, Dimensions.ChecksumIndex).ToArray());
                         if (_bytes[Dimensions.ChecksumIndex] != csum)
                         {
-                            String msg = String.Format("Supplied checksum {0} != {1} calculated checksum");
+                            String msg = String.Format("Supplied checksum {0} != {1} calculated checksum", _bytes[Dimensions.ChecksumIndex], csum);
                             throw new FrameException(Frame.FrameError.CHECKSUM_FAILED, msg);
                         }
                         break;
