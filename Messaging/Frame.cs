@@ -240,6 +240,7 @@ namespace Chetch.Messaging
             return complete;
         }*/
 
+        //Add a byte and capture some stuff
         public void Add(byte b)
         {
             if(addByte(b)){
