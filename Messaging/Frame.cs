@@ -174,8 +174,6 @@ namespace Chetch.Messaging
         private int _addPosition = 0;
         #endregion
        
-        
-
         public Frame(FrameSchema schema)
         {
             Schema = schema;
