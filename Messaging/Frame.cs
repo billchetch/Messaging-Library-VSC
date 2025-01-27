@@ -174,8 +174,7 @@ namespace Chetch.Messaging
         private int _addPosition = 0;
         #endregion
        
-        
-
+        #region Czonstructors
         public Frame(FrameSchema schema)
         {
             Schema = schema;
@@ -186,6 +185,7 @@ namespace Chetch.Messaging
         {
             Encoding = encoding;
         }
+        #endregion
 
         private void setByteAt(byte b, int idx)
         {
@@ -310,7 +310,6 @@ namespace Chetch.Messaging
 
             return _bytes;
         }
-
 
         public byte GetByte(int index)
         {
