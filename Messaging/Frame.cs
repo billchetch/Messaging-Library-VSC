@@ -245,6 +245,7 @@ namespace Chetch.Messaging
                 Validate();
                 FrameComplete?.Invoke(this, b);
             }
+            return complete;
         }
 
         public void Reset()
