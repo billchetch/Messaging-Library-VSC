@@ -174,6 +174,8 @@ namespace Chetch.Messaging
         private int _addPosition = 0;
         #endregion
        
+        
+
         public Frame(FrameSchema schema)
         {
             Schema = schema;
@@ -245,7 +247,6 @@ namespace Chetch.Messaging
                 Validate();
                 FrameComplete?.Invoke(this, b);
             }
-            return complete;
         }
 
         public void Reset()
