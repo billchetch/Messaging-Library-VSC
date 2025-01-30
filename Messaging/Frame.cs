@@ -166,7 +166,7 @@ namespace Chetch.Messaging
         #endregion
 
         #region Events
-        public EventHandler<byte>? FrameComplete;
+        public EventHandler<byte[]>? FrameComplete;
         #endregion
 
         #region Fields
@@ -241,11 +241,12 @@ namespace Chetch.Messaging
         }*/
 
         //Add a byte and capture some stuff
-        public void Add(byte b)
+        public void Add(byte b, bool reset = true)
         {
             if(addByte(b)){
                 Validate();
-                FrameComplete?.Invoke(this, b);
+                FrameComplete?.Invoke(this, Payload);
+                if(reset)Reset();
             }
         }
 
