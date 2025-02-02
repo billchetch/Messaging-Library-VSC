@@ -25,7 +25,8 @@ namespace Chetch.Messaging
             NON_VALID_SCHEMA,
             NON_VALID_ENCODING,
             CHECKSUM_FAILED,
-            ADD_TIMEOUT
+            ADD_TIMEOUT,
+            NON_VALID_PAYLOAD_SIZE
         }
 
         public class FrameDimensions
@@ -131,6 +132,8 @@ namespace Chetch.Messaging
             } 
         }
 
+        public int MaxPayload = -1; //
+
         public byte[] Payload
         {
             get
@@ -166,7 +169,7 @@ namespace Chetch.Messaging
         #endregion
 
         #region Events
-        public EventHandler<byte[]>? FrameComplete;
+        public EventHandler<byte[]> FrameComplete;
         #endregion
 
         #region Fields
@@ -184,6 +187,11 @@ namespace Chetch.Messaging
         public Frame(FrameSchema schema, MessageEncoding encoding) : this(schema)
         {
             Encoding = encoding;
+        }
+
+        public Frame(FrameSchema schema, MessageEncoding encoding, int maxPayload) : this(schema, encoding)
+        {
+            MaxPayload = maxPayload;
         }
         #endregion
 
@@ -213,16 +221,32 @@ namespace Chetch.Messaging
             {
                 if(b != (byte)Schema)
                 {
-                    throw new FrameException(FrameError.NON_VALID_SCHEMA, String.Format("{0} is not a valid schema", b));
+                    throw new FrameException(FrameError.NON_VALID_SCHEMA, String.Format("received {0} does not match this frames schema of {1}", b, Schema));
                 }
+                //Console.WriteLine("Frame schema: {0}", b);
+            }
+            else if(_addPosition == 1)
+            {
+                if(b!= (byte)Encoding)
+                {   
+                    throw new FrameException(FrameError.NON_VALID_ENCODING, String.Format("{0} is not a valid encoding", _bytes[1]));
+                }
+                //Console.WriteLine("Encoding: {0}", b);
             }
             else if (_addPosition == Dimensions.PayloadIndex)
             {
-                Encoding = (MessageEncoding)_bytes[1];
                 Dimensions.Payload = GetInt(Dimensions.PayloadSizeIndex, Dimensions.PayloadSize);
-                if(Dimensions.Payload <= 0)throw new FrameException(FrameError.INCOMPLETE_DATA, "Payload dimensions must be 1 or more");
+                if(Dimensions.Payload <= 0)
+                {   throw new FrameException(FrameError.INCOMPLETE_DATA, "Payload dimensions must be 1 or more");
+                }
+                else if(MaxPayload > 0 && Dimensions.Payload > MaxPayload)
+                {
+                    throw new FrameException(FrameError.NON_VALID_PAYLOAD_SIZE, String.Format("Payload size of {0} must be less than or equal to max of {1}", Dimensions.Payload, MaxPayload));
+                }
+                //Console.WriteLine("Payload size: {0}", Dimensions.Payload);
             }
 
+            //Console.Write("{0},",b);
             setByteAt(b, _addPosition);
             _addPosition++;
             Complete = Dimensions.Payload > 0 && _addPosition == Dimensions.Size;
@@ -244,6 +268,7 @@ namespace Chetch.Messaging
         public void Add(byte b, bool reset = true)
         {
             if(addByte(b)){
+                //Console.WriteLine("Frame complete!");
                 Validate();
                 FrameComplete?.Invoke(this, Payload);
                 if(reset)Reset();

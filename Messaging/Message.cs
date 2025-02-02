@@ -42,6 +42,7 @@ namespace Chetch.Messaging
 
     public enum MessageEncoding
     {
+        NOT_SET = 0,
         SYSTEM_DEFINED = 1, //the particulars are decided by the system being implemented (e.g. a single byte command)
         XML,
         QUERY_STRING,
