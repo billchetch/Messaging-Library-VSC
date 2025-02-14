@@ -333,11 +333,6 @@ namespace Chetch.Messaging
             foreach (var mv in Values)
             {
                 var value = mv.Value;
-                if(value is DateTime)
-                {
-                    var dt = ((DateTime)value);
-                    value = dt.AddTicks(-(dt.Ticks % TimeSpan.TicksPerSecond));
-                }
                 body.Add(mv.Key, value);
             }
             vals.Add("Body", body);
