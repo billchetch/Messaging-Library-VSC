@@ -254,15 +254,13 @@ namespace Chetch.Messaging
             return Complete;
         }
 
-        /*public bool Add(List<byte> bytes)
+        public void Add(byte[] bytes)
         {
-            bool complete = false;
             foreach(byte b in bytes)
             {
-                complete = Add(b);
+                Add(b);
             }
-            return complete;
-        }*/
+        }
 
         //Add a byte and capture some stuff
         public void Add(byte b, bool reset = true)
