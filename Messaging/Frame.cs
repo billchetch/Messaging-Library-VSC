@@ -305,11 +305,12 @@ namespace Chetch.Messaging
                 switch (Schema)
                 {
                     case Frame.FrameSchema.SMALL_SIMPLE_CHECKSUM:
-                        byte csum = 0;
-                        csum = CheckSum.SimpleAddition(_bytes.GetRange(0, Dimensions.ChecksumIndex).ToArray());
-                        if (_bytes[Dimensions.ChecksumIndex] != csum)
+                    case Frame.FrameSchema.MEDIUM_SIMPLE_CHECKSUM:
+                        int sum = (int)CheckSum.SimpleAddition(_bytes.GetRange(0, Dimensions.ChecksumIndex).ToArray());
+                        int csum = GetInt(Dimensions.ChecksumIndex, Dimensions.Checksum);
+                        if (sum != csum)
                         {
-                            String msg = String.Format("Supplied checksum {0} != {1} calculated checksum", _bytes[Dimensions.ChecksumIndex], csum);
+                            String msg = String.Format("Supplied checksum {0} != {1} calculated checksum", csum, sum);
                             throw new FrameException(Frame.FrameError.CHECKSUM_FAILED, msg);
                         }
                         break;
@@ -326,9 +327,16 @@ namespace Chetch.Messaging
                 switch (Schema)
                 {
                     case Frame.FrameSchema.SMALL_SIMPLE_CHECKSUM:
-                        byte csum = CheckSum.SimpleAddition(_bytes.GetRange(0, Dimensions.ChecksumIndex).ToArray());
-                        setByteAt(csum, Dimensions.ChecksumIndex);
+                    case Frame.FrameSchema.MEDIUM_SIMPLE_CHECKSUM:
+                        byte[] csum = CheckSum.SimpleAddition(_bytes.GetRange(0, Dimensions.ChecksumIndex).ToArray(), Dimensions.Checksum);
+                        for(int i = 0; i < Dimensions.Checksum; i++)
+                        {
+                            setByteAt(csum[i], Dimensions.ChecksumIndex + i);
+                        }
                         break;
+
+                    default:
+                        throw new Exception(String.Format("Schema {0} does not containe a checksum yet one tried to be added in Frame.GetBytes", Schema));
                 }
             }
 
