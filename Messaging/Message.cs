@@ -91,6 +91,8 @@ namespace Chetch.Messaging
         }
         public MessageEncoding DefaultEncoding { get; set; } = MessageEncoding.JSON;
 
+        //Meta stuff
+        public DateTime Created { get; internal set; }
 
         public Message()
         {
@@ -139,6 +141,7 @@ namespace Chetch.Messaging
 
         private String CreateID()
         {
+            Created = DateTime.Now;
             return System.Diagnostics.Process.GetCurrentProcess().Id.ToString() + "-" + this.GetHashCode() + "-" + DateTime.Now.ToString("yyyyMMddHHmmssffff");
         }
 
