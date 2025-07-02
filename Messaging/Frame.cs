@@ -52,7 +52,7 @@ namespace Chetch.Messaging
                     case FrameSchema.MEDIUM_NO_CHECKSUM:
                     case FrameSchema.MEDIUM_SIMPLE_CHECKSUM:
                         PayloadSize = 2;
-                        Checksum = schema == FrameSchema.MEDIUM_SIMPLE_CHECKSUM ? 1 : 0;
+                        Checksum = schema == FrameSchema.MEDIUM_SIMPLE_CHECKSUM ? 2 : 0;
                         break;
                 }
             }
