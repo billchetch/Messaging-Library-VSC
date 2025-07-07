@@ -346,10 +346,16 @@ namespace Chetch.Messaging
             return JsonSerializer.Serialize(vals);
         }
 
-        public byte[] Serialize(MessageEncoding encoding = MessageEncoding.JSON)
+        public String Serialize(MessageEncoding encoding = MessageEncoding.JSON)
         {
             String serialized = null;
             serialized = GetJSON(new Dictionary<String, Object>());
+            return serialized;
+        }
+
+        public static byte[] Serialize(Message message, MessageEncoding encoding)
+        {
+            var serialized = message.Serialize(encoding);
             return Chetch.Utilities.Convert.ToBytes(serialized);
         }
 
@@ -501,13 +507,6 @@ namespace Chetch.Messaging
             String s = ToStringHeader();
             s += lf + ToStringValues(false);
             return s;
-        }
-
-        public String ToString(MessageEncoding encoding)
-        {
-            String serialized = null;
-            serialized = GetJSON(new Dictionary<String, Object>());
-            return serialized;
         }
     }
 }
