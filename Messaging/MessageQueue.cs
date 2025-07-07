@@ -9,7 +9,7 @@ public class MessageQueue<T> : DispatchQueue<T>
     public const int MESSAGE_QUEUE_WAIT = 100;
 
     #region Properties
-    public Func<byte[], T> Deserialize;
+    public Func<byte[], MessageEncoding, T> Deserialize;
 
     public event EventHandler<Exception> ExceptionThrown;
     public event EventHandler<T> MessageEnqueued;
@@ -23,7 +23,7 @@ public class MessageQueue<T> : DispatchQueue<T>
     public MessageQueue(int messageQueueWait = MESSAGE_QUEUE_WAIT) : base(() => { return true; }, messageQueueWait)
     { }
 
-    public MessageQueue(Frame.FrameSchema schema, MessageEncoding encoding, Func<byte[], T> deserialize, int messageQueueWait = MESSAGE_QUEUE_WAIT) : this(messageQueueWait)
+    public MessageQueue(Frame.FrameSchema schema, MessageEncoding encoding, Func<byte[], MessageEncoding, T> deserialize, int messageQueueWait = MESSAGE_QUEUE_WAIT) : this(messageQueueWait)
     {
         frame = new Frame(schema, encoding);
         Deserialize = deserialize;
@@ -32,7 +32,7 @@ public class MessageQueue<T> : DispatchQueue<T>
         {
             try
             {
-                T message = Deserialize(payload);
+                T message = Deserialize(payload, frame.Encoding);
                 Enqueue(message);
                 MessageEnqueued?.Invoke(this, message);
             }
