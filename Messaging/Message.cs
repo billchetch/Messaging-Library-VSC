@@ -75,7 +75,7 @@ namespace Chetch.Messaging
         public int SubType;
         public String Signature = String.Empty; //a way to test whether this message is valid or not
         public String Tag = String.Empty; //can be used to follow messages around
-        
+
         //constitutes the body of the message
         public List<MessageValue> Values = new List<MessageValue>();
         public String Value
@@ -229,14 +229,15 @@ namespace Chetch.Messaging
             if (!HasValue(key)) return defaultValue;
 
             var v = GetValue(key);
-            if(v is JsonElement)
+            if (v is JsonElement)
             {
                 return JsonSerializer.Deserialize<T>((JsonElement)v);
-            } else if(v is ValueType)
+            }
+            else if (v is ValueType)
             {
                 return (T)v;
             }
-            else 
+            else
             {
                 throw new Exception(String.Format("Message::Get key {0} returns unsupported type {1}", key, v.GetType().ToString()));
             }
@@ -304,10 +305,12 @@ namespace Chetch.Messaging
             {
                 var al = (System.Collections.ArrayList)v;
                 return al.Cast<T>().ToList();
-            } else if(v is System.Collections.Generic.List<T>)
+            }
+            else if (v is System.Collections.Generic.List<T>)
             {
                 return (List<T>)v;
-            } else if(v is JsonElement)
+            }
+            else if (v is JsonElement)
             {
                 return Get<List<T>>(key);
             }
@@ -343,12 +346,11 @@ namespace Chetch.Messaging
             return JsonSerializer.Serialize(vals);
         }
 
-        public String Serialize(MessageEncoding encoding = MessageEncoding.JSON)
+        public byte[] Serialize(MessageEncoding encoding = MessageEncoding.JSON)
         {
             String serialized = null;
             serialized = GetJSON(new Dictionary<String, Object>());
-            return serialized;
-
+            return Chetch.Utilities.Convert.ToBytes(serialized);
         }
 
         public static T Deserialize<T>(String s, MessageEncoding encoding = MessageEncoding.XML) where T : Message, new()
@@ -363,7 +365,7 @@ namespace Chetch.Messaging
         {
             return Deserialize<Message>(s, encoding);
         }
-        
+
         public static Message Deserialize(byte[] bytes, MessageEncoding encoding)
         {
             var s = Chetch.Utilities.Convert.ToString(bytes);
@@ -461,7 +463,7 @@ namespace Chetch.Messaging
         {
             String lf = Environment.NewLine;
             String s = "Values: " + lf;
-            
+
             foreach (var v in Values)
             {
                 if (v.Value is System.Collections.IList && expandLists)
@@ -499,6 +501,13 @@ namespace Chetch.Messaging
             String s = ToStringHeader();
             s += lf + ToStringValues(false);
             return s;
+        }
+
+        public String ToString(MessageEncoding encoding)
+        {
+            String serialized = null;
+            serialized = GetJSON(new Dictionary<String, Object>());
+            return serialized;
         }
     }
 }
