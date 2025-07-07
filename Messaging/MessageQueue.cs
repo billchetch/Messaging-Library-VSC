@@ -12,6 +12,7 @@ public class MessageQueue<T> : DispatchQueue<T>
     public Func<byte[], T> Deserialize;
 
     public event EventHandler<Exception> ExceptionThrown;
+    public event EventHandler<T> MessageEnqueued;
     #endregion
 
     #region Fields
@@ -33,6 +34,7 @@ public class MessageQueue<T> : DispatchQueue<T>
             {
                 T message = Deserialize(payload);
                 Enqueue(message);
+                MessageEnqueued?.Invoke(this, message);
             }
             catch (Exception e)
             {
@@ -42,16 +44,6 @@ public class MessageQueue<T> : DispatchQueue<T>
     }
     #endregion
 
-    #region Lifecycle
-    public override Task Start()
-    {
-        if (Deserialize == null)
-        {
-            throw new Exception("Please supply a Deserialize function");
-        }
-        return base.Start();
-    }
-    #endregion
 
     #region Methods
     public void Add(byte[] bytes)
