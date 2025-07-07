@@ -363,6 +363,12 @@ namespace Chetch.Messaging
         {
             return Deserialize<Message>(s, encoding);
         }
+        
+        public static Message Deserialize(byte[] bytes, MessageEncoding encoding)
+        {
+            var s = Chetch.Utilities.Convert.ToString(bytes);
+            return Deserialize<Message>(s, encoding);
+        }
 
         virtual public void OnDeserialize(String s, MessageEncoding encoding)
         {
@@ -385,7 +391,7 @@ namespace Chetch.Messaging
                     if (vals.ContainsKey("Body"))
                     {
                         var iterator = ((JsonElement)vals["Body"]).EnumerateObject();
-                        while(iterator.MoveNext())
+                        while (iterator.MoveNext())
                         {
                             var j = iterator.Current;
                             AddValue(j.Name, j.Value);
