@@ -54,6 +54,16 @@ public class MessageQueue<T> : DispatchQueue<T>
     }
     #endregion
 
+    #region Lifecycle
+    public override Task Start()
+    {
+        if (frame != null && Deserialize == null && Serialize == null)
+        {
+            throw new Exception("Frame specified but no Serilaize or Deserilizse supplied");
+        }
+        return base.Start();
+    }
+    #endregion
 
     #region Methods
     public void Add(byte[] bytes)
