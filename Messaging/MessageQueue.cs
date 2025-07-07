@@ -10,9 +10,12 @@ public class MessageQueue<T> : DispatchQueue<T>
 
     #region Properties
     public Func<byte[], MessageEncoding, T> Deserialize;
+    public Func<T, MessageEncoding, byte[]> Serialize;
 
     public event EventHandler<Exception> ExceptionThrown;
     public event EventHandler<T> MessageEnqueued;
+
+    public event EventHandler<byte[]> MessageDequeued;
     #endregion
 
     #region Fields
@@ -42,6 +45,13 @@ public class MessageQueue<T> : DispatchQueue<T>
             }
         };
     }
+
+
+    public MessageQueue(Frame.FrameSchema schema, MessageEncoding encoding, Func<T, MessageEncoding, byte[]> serialize, int messageQueueWait = MESSAGE_QUEUE_WAIT) : this(messageQueueWait)
+    {
+        frame = new Frame(schema, encoding);
+        Serialize = serialize;
+    }
     #endregion
 
 
@@ -49,6 +59,16 @@ public class MessageQueue<T> : DispatchQueue<T>
     public void Add(byte[] bytes)
     {
         frame.Add(bytes);
+    }
+
+    protected override void OnDequeue(T qi)
+    {
+        base.OnDequeue(qi);
+        if (Serialize != null && MessageDequeued != null)
+        {
+            frame.Payload = Serialize(qi, frame.Encoding);
+            MessageDequeued.Invoke(this, frame.GetBytes().ToArray());
+        }
     }
     #endregion
 }
