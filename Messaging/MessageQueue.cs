@@ -1,21 +1,51 @@
 using System;
+using System.CodeDom;
 using Chetch.Utilities;
 
 namespace Chetch.Messaging;
 
-
+/// <summary>
+/// Designed for queues in two directions: 
+/// 1. Messages coming in as a byte stream (hence the mehtod Add(byte[]) to be deserialized and then Enquued
+/// 2. Messages to be dequeued and Serialized for sending out as a byte stream.
+/// </summary>
 public class MessageQueue<T> : DispatchQueue<T>
 {
+    #region Constants
     public const int MESSAGE_QUEUE_WAIT = 100;
+    #endregion
+
+    #region Classes and Enums
+    public class EventArgs : System.EventArgs
+    {
+         public T Message { get; internal set; }
+         public byte[] Bytes { get; internal set; }
+
+
+        public EventArgs(T qi, byte[] bytes)
+        {
+            Message = qi;
+            Bytes = bytes;
+        }
+    }
+    #endregion
+
 
     #region Properties
     public Func<byte[], MessageEncoding, T> Deserialize;
     public Func<T, MessageEncoding, byte[]> Serialize;
 
     public event ErrorEventHandler ExceptionThrown;
-    public event EventHandler<T> MessageEnqueued;
 
-    public event EventHandler<byte[]> MessageDequeued;
+    /// <summary>
+    /// Called when a byte stream has been parsed in to a frame and deserialized as a message
+    /// </summary>
+    public event EventHandler<EventArgs> MessageEnqueued;
+
+    /// <summary>
+    /// Called when a message has been dequeued and serialised and added to a frame to be sent out via a byte stream
+    /// </summary>
+    public event EventHandler<EventArgs> MessageDequeued;
     #endregion
 
     #region Fields
@@ -29,6 +59,13 @@ public class MessageQueue<T> : DispatchQueue<T>
         CanDequeue = () => true;
     }
 
+    /// <summary>
+    /// Constructor for queues for messages coming in as a byte stream hence the Deserialize function
+    /// </summary>
+    /// <param name="schema"></param>
+    /// <param name="encoding"></param>
+    /// <param name="deserialize"></param>
+    /// <param name="messageQueueWait"></param>
     public MessageQueue(Frame.FrameSchema schema, MessageEncoding encoding, Func<byte[], MessageEncoding, T> deserialize, int messageQueueWait = MESSAGE_QUEUE_WAIT) : this(messageQueueWait)
     {
         frame = new Frame(schema, encoding);
@@ -40,7 +77,6 @@ public class MessageQueue<T> : DispatchQueue<T>
             {
                 T message = Deserialize(payload, frame.Encoding);
                 Enqueue(message);
-                MessageEnqueued?.Invoke(this, message);
             }
             catch (Exception e)
             {
@@ -48,9 +84,16 @@ public class MessageQueue<T> : DispatchQueue<T>
             }
         };
 
-        
+
     }
 
+    /// <summary>
+    /// Constructor for queues for messages being sent out as a byte stream hence the Serialize function
+    /// </summary>
+    /// <param name="schema"></param>
+    /// <param name="encoding"></param>
+    /// <param name="serialize"></param>
+    /// <param name="messageQueueWait"></param>
     public MessageQueue(Frame.FrameSchema schema, MessageEncoding encoding, Func<T, MessageEncoding, byte[]> serialize, int messageQueueWait = MESSAGE_QUEUE_WAIT) : this(messageQueueWait)
     {
         frame = new Frame(schema, encoding);
@@ -70,6 +113,7 @@ public class MessageQueue<T> : DispatchQueue<T>
     #endregion
 
     #region Methods
+
     public void Add(byte[] bytes)
     {
         try
@@ -89,7 +133,7 @@ public class MessageQueue<T> : DispatchQueue<T>
         if (Serialize != null && MessageDequeued != null)
         {
             frame.Payload = Serialize(qi, frame.Encoding);
-            MessageDequeued.Invoke(this, frame.GetBytes().ToArray());
+            MessageDequeued.Invoke(this, new EventArgs(qi, frame.GetBytes().ToArray()));
         }
     }
     #endregion
