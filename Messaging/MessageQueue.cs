@@ -12,7 +12,7 @@ public class MessageQueue<T> : DispatchQueue<T>
     public Func<byte[], MessageEncoding, T> Deserialize;
     public Func<T, MessageEncoding, byte[]> Serialize;
 
-    public event EventHandler<Exception> ExceptionThrown;
+    public event ErrorEventHandler ExceptionThrown;
     public event EventHandler<T> MessageEnqueued;
 
     public event EventHandler<byte[]> MessageDequeued;
@@ -44,13 +44,12 @@ public class MessageQueue<T> : DispatchQueue<T>
             }
             catch (Exception e)
             {
-                ExceptionThrown?.Invoke(this, e);
+                ExceptionThrown?.Invoke(this, new System.IO.ErrorEventArgs(e));
             }
         };
 
         
     }
-
 
     public MessageQueue(Frame.FrameSchema schema, MessageEncoding encoding, Func<T, MessageEncoding, byte[]> serialize, int messageQueueWait = MESSAGE_QUEUE_WAIT) : this(messageQueueWait)
     {
@@ -73,7 +72,15 @@ public class MessageQueue<T> : DispatchQueue<T>
     #region Methods
     public void Add(byte[] bytes)
     {
-        frame.Add(bytes);
+        try
+        {
+            frame.Add(bytes);
+        }
+        catch (Exception e)
+        {
+            frame.Reset();
+            ExceptionThrown?.Invoke(this, new System.IO.ErrorEventArgs(e));
+        }
     }
 
     protected override void OnDequeue(T qi)
