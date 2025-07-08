@@ -449,7 +449,7 @@ namespace Chetch.Messaging
         }
 
 
-        private String _nullOrEmpty(Object o)
+        private static String _nullOrEmpty(Object o)
         {
             if (o == null)
             {

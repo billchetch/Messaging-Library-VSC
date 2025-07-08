@@ -24,7 +24,10 @@ public class MessageQueue<T> : DispatchQueue<T>
 
     #region Constructors
     public MessageQueue(int messageQueueWait = MESSAGE_QUEUE_WAIT) : base(() => { return true; }, messageQueueWait)
-    { }
+    { 
+        //Auto dequeue by default
+        CanDequeue = () => true;
+    }
 
     public MessageQueue(Frame.FrameSchema schema, MessageEncoding encoding, Func<byte[], MessageEncoding, T> deserialize, int messageQueueWait = MESSAGE_QUEUE_WAIT) : this(messageQueueWait)
     {
@@ -44,6 +47,8 @@ public class MessageQueue<T> : DispatchQueue<T>
                 ExceptionThrown?.Invoke(this, e);
             }
         };
+
+        
     }
 
 
