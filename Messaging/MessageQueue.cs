@@ -123,7 +123,7 @@ public class MessageQueue<T> : DispatchQueue<T>
         catch (Exception e)
         {
             frame.Reset();
-            ExceptionThrown?.Invoke(this, new System.IO.ErrorEventArgs(e));
+            throw;
         }
     }
 

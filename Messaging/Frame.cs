@@ -221,15 +221,15 @@ namespace Chetch.Messaging
             {
                 if(b != (byte)Schema)
                 {
-                    throw new FrameException(FrameError.NON_VALID_SCHEMA, String.Format("received {0} does not match this frames schema of {1}", b, Schema));
+                    throw new FrameException(FrameError.NON_VALID_SCHEMA, String.Format("received schema byte {0} does not match this frames schema of {1}", b, Schema));
                 }
                 //Console.WriteLine("Frame schema: {0}", b);
             }
             else if(_addPosition == 1)
             {
-                if(b!= (byte)Encoding)
+                if(b != (byte)Encoding)
                 {   
-                    throw new FrameException(FrameError.NON_VALID_ENCODING, String.Format("{0} is not a valid encoding", _bytes[1]));
+                    throw new FrameException(FrameError.NON_VALID_ENCODING, String.Format("received encoding byte {0} does not match this frames encoding of {1}", b, Encoding));
                 }
                 //Console.WriteLine("Encoding: {0}", b);
             }
@@ -298,22 +298,26 @@ namespace Chetch.Messaging
             {
                 throw new FrameException(Frame.FrameError.NO_HEADER);
             }
-            
+
             //confirm checksum
             if (Dimensions.Checksum > 0)
             {
+                int sum = -1;
+                int csum = GetInt(Dimensions.ChecksumIndex, Dimensions.Checksum);;
                 switch (Schema)
                 {
                     case Frame.FrameSchema.SMALL_SIMPLE_CHECKSUM:
-                    case Frame.FrameSchema.MEDIUM_SIMPLE_CHECKSUM:
-                        int sum = (int)CheckSum.SimpleAddition(_bytes.GetRange(0, Dimensions.ChecksumIndex).ToArray());
-                        int csum = GetInt(Dimensions.ChecksumIndex, Dimensions.Checksum);
-                        if (sum != csum)
-                        {
-                            String msg = String.Format("Supplied checksum {0} != {1} calculated checksum", csum, sum);
-                            throw new FrameException(Frame.FrameError.CHECKSUM_FAILED, msg);
-                        }
+                        sum = (byte)CheckSum.SimpleAddition(_bytes.GetRange(0, Dimensions.ChecksumIndex).ToArray());
                         break;
+                    case Frame.FrameSchema.MEDIUM_SIMPLE_CHECKSUM:
+                        sum = (int)CheckSum.SimpleAddition(_bytes.GetRange(0, Dimensions.ChecksumIndex).ToArray());
+                        break;
+                }
+
+                if (sum >= 0 && sum != csum)
+                {
+                    String msg = String.Format("Supplied checksum {0} != {1} calculated checksum", csum, sum);
+                    throw new FrameException(Frame.FrameError.CHECKSUM_FAILED, msg);
                 }
             }
         }
