@@ -9,7 +9,7 @@ namespace Chetch.Messaging;
 /// 1. Messages coming in as a byte stream (hence the mehtod Add(byte[]) to be deserialized and then Enquued
 /// 2. Messages to be dequeued and Serialized for sending out as a byte stream.
 /// </summary>
-public class MessageQueue<T> : DispatchQueue<T>
+public class MessageQueue<T> : DispatchQueue<T> where T : IMessageQueueItem<T>
 {
     #region Constants
     public const int MESSAGE_QUEUE_WAIT = 100;
@@ -31,10 +31,7 @@ public class MessageQueue<T> : DispatchQueue<T>
     #endregion
 
 
-    #region Properties
-    public Func<byte[], MessageEncoding, T> Deserialize;
-    public Func<T, MessageEncoding, byte[]> Serialize;
-
+    #region Events
     public event ErrorEventHandler ExceptionThrown;
 
     /// <summary>
@@ -53,12 +50,6 @@ public class MessageQueue<T> : DispatchQueue<T>
     #endregion
 
     #region Constructors
-    public MessageQueue(int messageQueueWait = MESSAGE_QUEUE_WAIT) : base(() => { return true; }, messageQueueWait)
-    { 
-        //Auto dequeue by default
-        CanDequeue = () => true;
-    }
-
     /// <summary>
     /// Constructor for queues for messages coming in as a byte stream hence the Deserialize function
     /// </summary>
@@ -66,17 +57,17 @@ public class MessageQueue<T> : DispatchQueue<T>
     /// <param name="encoding"></param>
     /// <param name="deserialize"></param>
     /// <param name="messageQueueWait"></param>
-    public MessageQueue(Frame.FrameSchema schema, MessageEncoding encoding, Func<byte[], MessageEncoding, T> deserialize, int messageQueueWait = MESSAGE_QUEUE_WAIT) : this(messageQueueWait)
+    public MessageQueue(Frame.FrameSchema schema, MessageEncoding encoding, int messageQueueWait = MESSAGE_QUEUE_WAIT) : base(() => true, messageQueueWait)
     {
         frame = new Frame(schema, encoding);
-        Deserialize = deserialize;
-
+        
         frame.FrameComplete += (sender, payload) =>
         {
             try
             {
-                T message = Deserialize(payload, frame.Encoding);
+                T message = T.Deserialize(payload, frame.Encoding);
                 Enqueue(message);
+                MessageEnqueued?.Invoke(this, new EventArgs(message, payload));
             }
             catch (Exception e)
             {
@@ -85,30 +76,6 @@ public class MessageQueue<T> : DispatchQueue<T>
         };
 
 
-    }
-
-    /// <summary>
-    /// Constructor for queues for messages being sent out as a byte stream hence the Serialize function
-    /// </summary>
-    /// <param name="schema"></param>
-    /// <param name="encoding"></param>
-    /// <param name="serialize"></param>
-    /// <param name="messageQueueWait"></param>
-    public MessageQueue(Frame.FrameSchema schema, MessageEncoding encoding, Func<T, MessageEncoding, byte[]> serialize, int messageQueueWait = MESSAGE_QUEUE_WAIT) : this(messageQueueWait)
-    {
-        frame = new Frame(schema, encoding);
-        Serialize = serialize;
-    }
-    #endregion
-
-    #region Lifecycle
-    public override void Start()
-    {
-        if (frame != null && Deserialize == null && Serialize == null)
-        {
-            throw new Exception("Frame specified but no Serilaize or Deserilizse supplied");
-        }
-        base.Start();
     }
     #endregion
 
@@ -130,9 +97,9 @@ public class MessageQueue<T> : DispatchQueue<T>
     protected override void OnDequeue(T qi)
     {
         base.OnDequeue(qi);
-        if (Serialize != null && MessageDequeued != null)
+        if (MessageDequeued != null)
         {
-            frame.Payload = Serialize(qi, frame.Encoding);
+            frame.Payload = T.Serialize(qi, frame.Encoding);
             MessageDequeued.Invoke(this, new EventArgs(qi, frame.GetBytes().ToArray()));
         }
     }

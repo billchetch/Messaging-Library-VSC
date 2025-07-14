@@ -64,7 +64,7 @@ namespace Chetch.Messaging
     }
 
     [Serializable]
-    public class Message
+    public class Message : IMessageQueueItem<Message>
     {
         //headers
         public String ID = String.Empty;
