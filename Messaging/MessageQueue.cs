@@ -100,7 +100,7 @@ public class MessageQueue<T> : DispatchQueue<T> where T : IMessageQueueItem<T>
         if (MessageDequeued != null)
         {
             frame.Payload = T.Serialize(qi, frame.Encoding);
-            MessageDequeued.Invoke(this, new EventArgs(qi, frame.GetBytes().ToArray()));
+            MessageDequeued?.Invoke(this, new EventArgs(qi, frame.GetBytes().ToArray()));
         }
     }
     #endregion
