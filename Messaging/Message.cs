@@ -3,6 +3,7 @@ using System.Text.Json;
 
 namespace Chetch.Messaging
 {
+    //32 message types
     public enum MessageType
     {
         NOT_SET,
