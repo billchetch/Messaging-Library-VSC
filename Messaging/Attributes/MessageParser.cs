@@ -44,7 +44,6 @@ public class MessageParser : Attribute
 
             if (add2msg)
             {
-
                 msg.AddValue(p.Name, p.GetValue(o));
             }
         }
