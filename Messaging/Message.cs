@@ -1,10 +1,11 @@
 ﻿using System.Text;
 using System.Text.Json;
+using System.Reflection;
 
 namespace Chetch.Messaging
 {
     //32 message types
-    public enum MessageType
+    public enum MessageType : byte
     {
         NOT_SET,
         REGISTER_LISTENER,
@@ -244,61 +245,6 @@ namespace Chetch.Messaging
             }
         }
 
-        /*public int GetInt(String key)
-        {
-            return System.Convert.ToInt32(GetValue(key));
-        }
-
-        public long GetLong(String key)
-        {
-            return System.Convert.ToInt64(GetValue(key));
-        }
-
-        public double GetDouble(String key)
-        {
-            return System.Convert.ToDouble(GetValue(key));
-        }
-
-        public byte GetByte(String key)
-        {
-            return (byte)GetInt(key);
-        }
-
-        public bool GetBool(String key)
-        {
-            var v = GetValue(key);
-            if (v is bool) return (bool)v;
-            if (v is String) return System.Convert.ToBoolean(GetString(key));
-            return GetInt(key) != 0;
-        }
-
-        public T GetEnum<T>(String key) where T : struct
-        {
-            var v = GetValue(key);
-            if (v is JsonElement)
-            {
-                return JsonSerializer.Deserialize<T>((JsonElement)v);
-            }
-            else
-            {
-                return (T)Enum.Parse(typeof(T), v.ToString());
-            }
-        }
-
-        public DateTime GetDateTime(String key)
-        {
-            String dts = GetString(key);
-            if (dts == null || dts == String.Empty)
-            {
-                return default(DateTime);
-            }
-            else
-            {
-                return DateTime.Parse(dts, System.Globalization.CultureInfo.InvariantCulture);
-            }
-
-        }*/
-
         public List<T> GetList<T>(String key)
         {
             Object v = GetValue(key);
@@ -324,6 +270,7 @@ namespace Chetch.Messaging
             Values.Clear();
         }
 
+        
 
         virtual public String GetJSON(Dictionary<String, Object> vals)
         {

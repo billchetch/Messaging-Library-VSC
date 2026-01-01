@@ -10,4 +10,8 @@
   <ItemGroup>
     <ProjectReference Include="../../../Libraries/Utilities/Utilities/Utilities.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Attributes/" />
+  </ItemGroup>
 </Project>
