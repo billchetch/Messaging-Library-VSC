@@ -51,7 +51,7 @@ public class MessageParser : Attribute
         return msg;    
     }
 
-    static public Message Parse(MessageType messageType, Object o)
+    static public Message Parse(MessageType messageType, Object o, String propsList = null, ParsingPolicy policy = ParsingPolicy.EXCLUDE)
     {
         var msg = Parse(o);
         msg.Type = messageType;
