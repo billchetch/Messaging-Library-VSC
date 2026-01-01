@@ -8,7 +8,7 @@ namespace Chetch.Messaging.Attributes;
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 public class MessageParser : Attribute
 {
-    static public Message Parse(Object o, String propsList = null, bool exclude = false)
+    static public Message Parse(Object o, String propsList = null, ParsingPolicy policy = ParsingPolicy.EXCLUDE)
     {
         var msg = new Message();
 
@@ -26,7 +26,7 @@ public class MessageParser : Attribute
             bool add2msg = p.CanRead;
             if(add2msg && props2check.Length > 0)
             {
-                add2msg = exclude ? !props2check.Contains(p.Name) : props2check.Contains(p.Name);
+                add2msg = policy == ParsingPolicy.EXCLUDE ? !props2check.Contains(p.Name) : props2check.Contains(p.Name);
             }
             if(add2msg)
             {
