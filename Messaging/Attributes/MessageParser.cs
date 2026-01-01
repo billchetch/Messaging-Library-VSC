@@ -34,7 +34,7 @@ public class MessageParser : Attribute
                 var mparsers = p.GetCustomAttributes(true).Where(atr => atr is MessageParser);
                 foreach(MessageParser mparser in mparsers)
                 {
-                    if (mparser.Exclude)
+                    if (mparser.ExcludeProperty)
                     {
                         add2msg = false;
                         break;
@@ -64,8 +64,8 @@ public class MessageParser : Attribute
         EXCLUDE
     }
 
-    public bool Include => Policy == ParsingPolicy.INCLUDE;
-    public bool Exclude => Policy == ParsingPolicy.EXCLUDE;
+    public bool IncludeProperty => Policy == ParsingPolicy.INCLUDE;
+    public bool ExcludeProperty => Policy == ParsingPolicy.EXCLUDE;
 
     public ParsingPolicy Policy { get; internal set; } = ParsingPolicy.EXCLUDE; 
 
