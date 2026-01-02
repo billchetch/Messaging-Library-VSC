@@ -372,7 +372,7 @@ namespace Chetch.Messaging
             {
                 if (p is MessageType)
                 {
-                    p = (T)(Object)Int32.Parse(vals[key].ToString());
+                    p = (T)(Object)byte.Parse(vals[key].ToString());
                     vals.Remove(key);
                 }
                 else
