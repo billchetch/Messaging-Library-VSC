@@ -8,10 +8,8 @@ namespace Chetch.Messaging.Attributes;
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 public class MessageParser : Attribute
 {
-    static public Message Parse(Object o, String propsList = null, ParsingPolicy policy = ParsingPolicy.EXCLUDE)
+    static public Message Parse(Message msg, Object o, String propsList = null, ParsingPolicy policy = ParsingPolicy.EXCLUDE)
     {
-        var msg = new Message();
-
         var type = o.GetType();
         var props = type.GetProperties();
         var props2check = propsList == null ? [] : propsList.Split(",");
@@ -53,9 +51,8 @@ public class MessageParser : Attribute
 
     static public Message Parse(MessageType messageType, Object o, String propsList = null, ParsingPolicy policy = ParsingPolicy.EXCLUDE)
     {
-        var msg = Parse(o);
-        msg.Type = messageType;
-        return msg;
+        var msg = new Message(messageType);
+        return Parse(msg, o, propsList);
     }
 
     public enum ParsingPolicy
