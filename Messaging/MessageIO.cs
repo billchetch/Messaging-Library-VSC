@@ -1,6 +1,7 @@
 using System;
 using System.CodeDom;
 using System.Net.Quic;
+using System.Threading.Tasks;
 
 namespace Chetch.Messaging;
 
@@ -73,10 +74,10 @@ public class MessageIO<T> where T : IMessageQueueItem<T>
         qout.Start();
     }
 
-    public void Stop()
+    public async Task Stop(bool flush = false)
     {
-        qin.Stop();
-        qout.Stop();
+        await qin.Stop(flush);
+        await qout.Stop(flush);
     }
     #endregion
 }
