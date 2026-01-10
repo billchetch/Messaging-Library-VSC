@@ -1,6 +1,7 @@
 using System;
 using System.CodeDom;
 using System.Net.Quic;
+using System.Runtime.InteropServices.Marshalling;
 using System.Threading.Tasks;
 
 namespace Chetch.Messaging;
@@ -61,6 +62,11 @@ public class MessageIO<T> where T : IMessageQueueItem<T>
     public void Add(byte[] bytes)
     {
         qin.Add(bytes);    
+    }
+
+    public void Inject(T message)
+    {
+        qin.Enqueue(message);
     }
 
     public void Add(T message)
