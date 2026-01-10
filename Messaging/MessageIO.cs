@@ -39,7 +39,7 @@ public class MessageIO<T> where T : IMessageQueueItem<T>
     /// <param name="serialize"></param>
     /// <param name="deserialize"></param>
     /// <param name="messageQueueWait"></param>
-    public MessageIO(Frame.FrameSchema schema, MessageEncoding encoding, int messageQueueWait = MESSAGE_QUEUE_WAIT)
+    public MessageIO(Frame.FrameSchema schema = Frame.FrameSchema.NONE, MessageEncoding encoding = MessageEncoding.NOT_SET, int messageQueueWait = MESSAGE_QUEUE_WAIT)
     {
         qin = new MessageQueue<T>(schema, encoding, messageQueueWait);
         qin.Dequeued += (sender, message) =>
