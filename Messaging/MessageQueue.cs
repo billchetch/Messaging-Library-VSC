@@ -74,8 +74,6 @@ public class MessageQueue<T> : DispatchQueue<T> where T : IMessageQueueItem<T>
                 ExceptionThrown?.Invoke(this, new System.IO.ErrorEventArgs(e));
             }
         };
-
-
     }
     #endregion
 
@@ -99,8 +97,15 @@ public class MessageQueue<T> : DispatchQueue<T> where T : IMessageQueueItem<T>
         base.OnDequeue(qi);
         if (MessageDequeued != null)
         {
-            frame.Payload = T.Serialize(qi, frame.Encoding);
-            MessageDequeued?.Invoke(this, new EventArgs(qi, frame.GetBytes().ToArray()));
+            if(frame.Encoding != MessageEncoding.NOT_SET)
+            {
+                frame.Payload = T.Serialize(qi, frame.Encoding);
+                MessageDequeued?.Invoke(this, new EventArgs(qi, frame.GetBytes().ToArray()));
+            }
+            else
+            {
+                MessageDequeued?.Invoke(this, new EventArgs(qi, null));
+            }
         }
     }
     #endregion

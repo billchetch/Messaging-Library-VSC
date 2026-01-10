@@ -49,6 +49,7 @@ public class MessageIO<T> where T : IMessageQueueItem<T>
         };
 
         qout = new MessageQueue<T>(schema, encoding, messageQueueWait);
+        
         qout.MessageDequeued += (sender, eargs) =>
         {
             LastMessageDispatched = eargs.Message;
