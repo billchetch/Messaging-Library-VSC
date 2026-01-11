@@ -85,7 +85,7 @@ public class MessageQueue<T> : DispatchQueue<T> where T : IMessageQueueItem<T>
         {
             frame.Add(bytes);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             frame.Reset();
             throw;
