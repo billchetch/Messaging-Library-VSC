@@ -21,6 +21,8 @@ public class MessageIO<T> where T : IMessageQueueItem<T>
     #endregion
 
     #region Properties
+    public int ID { get; set; } = 9;
+    public bool IsRunning => qin.IsRunning && qout.IsRunning;
     public T LastMessageReceived { get; internal set; }
     public T LastMessageDispatched { get; internal set; }
     #endregion
