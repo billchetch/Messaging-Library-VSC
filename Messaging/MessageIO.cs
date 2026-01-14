@@ -9,7 +9,6 @@ namespace Chetch.Messaging;
 public class MessageIO<T> where T : IMessageQueueItem<T>
 {
     #region Constants
-    public const int MESSAGE_QUEUE_WAIT = 100;
     #endregion
 
     #region Events
@@ -41,16 +40,16 @@ public class MessageIO<T> where T : IMessageQueueItem<T>
     /// <param name="serialize"></param>
     /// <param name="deserialize"></param>
     /// <param name="messageQueueWait"></param>
-    public MessageIO(Frame.FrameSchema schema = Frame.FrameSchema.NONE, MessageEncoding encoding = MessageEncoding.NOT_SET, int messageQueueWait = MESSAGE_QUEUE_WAIT)
+    public MessageIO(Frame.FrameSchema schema = Frame.FrameSchema.NONE, MessageEncoding encoding = MessageEncoding.NOT_SET, int messageInInterval = 0, int messageOutInterval = 0)
     {
-        qin = new MessageQueue<T>(schema, encoding, messageQueueWait);
+        qin = new MessageQueue<T>(schema, encoding, messageInInterval);
         qin.Dequeued += (sender, message) =>
         {
             LastMessageReceived = message;
             MessageReceived?.Invoke(sender, message);
         };
 
-        qout = new MessageQueue<T>(schema, encoding, messageQueueWait);
+        qout = new MessageQueue<T>(schema, encoding, messageOutInterval);
         
         qout.MessageDequeued += (sender, eargs) =>
         {

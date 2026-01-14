@@ -12,7 +12,9 @@ namespace Chetch.Messaging;
 public class MessageQueue<T> : DispatchQueue<T> where T : IMessageQueueItem<T>
 {
     #region Constants
-    public const int MESSAGE_QUEUE_WAIT = 100;
+
+    public const int MESSAGE_INTERVAL = 10;
+    public const int MESSAGE_QUEUE_WAIT = 0;
     #endregion
 
     #region Classes and Enums
@@ -57,7 +59,7 @@ public class MessageQueue<T> : DispatchQueue<T> where T : IMessageQueueItem<T>
     /// <param name="encoding"></param>
     /// <param name="deserialize"></param>
     /// <param name="messageQueueWait"></param>
-    public MessageQueue(Frame.FrameSchema schema, MessageEncoding encoding, int messageQueueWait = MESSAGE_QUEUE_WAIT) : base(() => true, messageQueueWait)
+    public MessageQueue(Frame.FrameSchema schema, MessageEncoding encoding, int messageInterval = 0, int messageQueueWait = MESSAGE_QUEUE_WAIT) : base(() => true, messageInterval, messageQueueWait)
     {
         frame = new Frame(schema, encoding);
         
@@ -92,9 +94,9 @@ public class MessageQueue<T> : DispatchQueue<T> where T : IMessageQueueItem<T>
         }
     }
 
-    protected override void OnDequeue(T qi)
+    protected override async Task  OnDequeue(T qi)
     {
-        base.OnDequeue(qi);
+        await base.OnDequeue(qi);
         if (MessageDequeued != null)
         {
             if(frame.Encoding != MessageEncoding.NOT_SET)
