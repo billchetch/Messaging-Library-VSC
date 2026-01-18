@@ -24,6 +24,9 @@ public class MessageIO<T> where T : IMessageQueueItem<T>
     public bool IsRunning => qin.IsRunning && qout.IsRunning;
     public T LastMessageReceived { get; internal set; }
     public T LastMessageDispatched { get; internal set; }
+
+    public int ToReceive => qin.Count;
+    public int ToDispatch => qout.Count;
     #endregion
 
     #region Fields
@@ -56,8 +59,10 @@ public class MessageIO<T> where T : IMessageQueueItem<T>
             LastMessageDispatched = eargs.Message;
             MessageDispatched?.Invoke(sender, eargs.Bytes);
         };
-
     }
+
+    public MessageIO(int messageInInterval, int messageOutInterval) : this(Frame.FrameSchema.NONE, MessageEncoding.NOT_SET, messageInInterval, messageOutInterval)
+    {}
     #endregion
 
     #region Methods
